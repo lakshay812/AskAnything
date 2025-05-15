@@ -1,5 +1,7 @@
 import streamlit as st
+from dotenv import load_dotenv
 import google.generativeai as genai
+import os
 
 load_dotenv()
 # 🔐 Configure Gemini API key
@@ -45,6 +47,10 @@ if question:
             model = genai.GenerativeModel(model_name="gemini-1.5-flash")
             response = model.generate_content(question)
             st.markdown("---")
-            st.markdown(f"### 📘 Answer:\n{response.text}")
+            st.markdown(f"""
+                <h3 style='color: white;'>📘 Answer:</h3>
+                <p style='color: white;'>{response.text}</p>
+            """, unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Error: {e}")
+
