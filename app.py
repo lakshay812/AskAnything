@@ -1,8 +1,9 @@
 import streamlit as st
 import google.generativeai as genai
 
+load_dotenv()
 # 🔐 Configure Gemini API key
-genai.configure(api_key="AIzaSyARjE5pUIpK9xY4aK3R3-XV9O9Ej2J_XG0")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # 🌟 Streamlit UI settings
 st.set_page_config(page_title="Gemini Q&A", layout="centered")
