@@ -8,7 +8,7 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # 🌟 Streamlit UI settings
-st.set_page_config(page_title="Gemini Q&A", layout="centered")
+st.set_page_config(page_title="💬 AskAnything", layout="centered")
 
 # 🌑 Custom CSS for dark theme
 st.markdown("""
