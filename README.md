@@ -8,7 +8,7 @@ The application features a beautiful dark-themed interface, session-based chat h
 
 🌐 Live Demo
 
-🚀 Try it here: https://ask1anything.streamlit.app/
+🚀 Try it here: [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://ask1anything.streamlit.app/)
 
 ---
 
