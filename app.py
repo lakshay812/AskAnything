@@ -3,54 +3,181 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 import os
 
+# ----------------------------
+# Configuration
+# ----------------------------
 load_dotenv()
-# 🔐 Configure Gemini API key
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# 🌟 Streamlit UI settings
-st.set_page_config(page_title="💬 AskAnything", layout="centered")
+api_key = os.getenv("GOOGLE_API_KEY")
 
-# 🌑 Custom CSS for dark theme
+if not api_key:
+    st.error("GOOGLE_API_KEY not found in .env file")
+    st.stop()
+
+genai.configure(api_key=api_key)
+
+# ----------------------------
+# Page Settings
+# ----------------------------
+st.set_page_config(
+    page_title="AskAnything",
+    page_icon="💬",
+    layout="wide"
+)
+
+# ----------------------------
+# Custom CSS
+# ----------------------------
 st.markdown("""
-    <style>
-        body {
-            background-color: #000000;
-            color: #ffffff;
-        }
-        .stApp {
-            background-color: #000000;
-        }
-        label, .stTextInput > div > label {
-            color: #ffffff !important;
-            font-size: 20px !important;
-            font-weight: bold !important;
-        }
-        input, textarea {
-            color: white !important;
-            background-color: #1c1c1c !important;
-        }
-        input::placeholder {
-            color: #888888 !important;
-        }
-    </style>
+<style>
+    .stApp {
+        background-color: #0E1117;
+    }
+
+    .main-title {
+        text-align: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #9CA3AF;
+        margin-bottom: 30px;
+    }
+
+    .user-message {
+        background-color: #1E293B;
+        padding: 15px;
+        border-radius: 12px;
+        margin: 10px 0;
+        color: white;
+    }
+
+    .bot-message {
+        background-color: #111827;
+        padding: 15px;
+        border-radius: 12px;
+        margin: 10px 0;
+        color: white;
+        border-left: 4px solid #3B82F6;
+    }
+
+    .stTextInput > div > div > input {
+        background-color: #1F2937;
+        color: white;
+    }
+</style>
 """, unsafe_allow_html=True)
 
-# 🎯 App Title
-st.markdown("<h1 style='text-align: center; color: white;'>💬 AskAnything</h1>", unsafe_allow_html=True)
+# ----------------------------
+# Session State
+# ----------------------------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# 📥 User input
-question = st.text_input("How can I help you?", placeholder="Type your question here...", label_visibility="visible")
+# ----------------------------
+# Sidebar
+# ----------------------------
+with st.sidebar:
+    st.title("⚙️ Settings")
 
-if question:
-    with st.spinner("Thinking..."):
+    model_name = st.selectbox(
+        "Choose Gemini Model",
+        [
+            "gemini-2.5-flash",
+            "gemini-2.5-pro"
+        ]
+    )
+
+    st.markdown("---")
+
+    if st.button("🗑️ Clear Chat"):
+        st.session_state.messages = []
+        st.rerun()
+
+    st.markdown("---")
+    st.info(
+        "AskAnything\n\n"
+        "Powered by Google Gemini AI"
+    )
+
+# ----------------------------
+# Header
+# ----------------------------
+st.markdown(
+    "<div class='main-title'>💬 AskAnything</div>",
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    "<div class='subtitle'>Ask anything and get AI-powered answers instantly.</div>",
+    unsafe_allow_html=True
+)
+
+# ----------------------------
+# Display Chat History
+# ----------------------------
+for message in st.session_state.messages:
+
+    if message["role"] == "user":
+        with st.chat_message("user"):
+            st.markdown(message["content"])
+
+    else:
+        with st.chat_message("assistant"):
+            st.markdown(message["content"])
+
+# ----------------------------
+# User Input
+# ----------------------------
+prompt = st.chat_input("Ask me anything...")
+
+if prompt:
+
+    # Save user message
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": prompt
+        }
+    )
+
+    # Display user message
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Generate AI response
+    with st.chat_message("assistant"):
+
         try:
-            model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-            response = model.generate_content(question)
-            st.markdown("---")
-            st.markdown(f"""
-                <h3 style='color: white;'>📘 Answer:</h3>
-                <p style='color: white;'>{response.text}</p>
-            """, unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"Error: {e}")
+            with st.spinner("Thinking..."):
 
+                model = genai.GenerativeModel(model_name)
+
+                response = model.generate_content(prompt)
+
+                answer = response.text
+
+                st.markdown(answer)
+
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": answer
+                    }
+                )
+
+        except Exception as e:
+            error_msg = f"❌ Error: {str(e)}"
+
+            st.error(error_msg)
+
+            st.session_state.messages.append(
+                {
+                    "role": "assistant",
+                    "content": error_msg
+                }
+            )
