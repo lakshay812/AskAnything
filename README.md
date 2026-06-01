@@ -6,6 +6,12 @@ The application features a beautiful dark-themed interface, session-based chat h
 
 ---
 
+🌐 Live Demo
+
+🚀 Try it here: https://ask1anything.streamlit.app/
+
+---
+
 ## 📸 Screenshots
 
 ### 🏠 Home Screen
